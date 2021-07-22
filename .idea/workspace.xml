@@ -25,6 +25,9 @@
       </map>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="GitSEFilterConfiguration">
     <file-type-list>
       <filtered-out-file-type name="LOCAL_BRANCH" />
@@ -37,6 +40,7 @@
     <option name="showPreview" value="true" />
   </component>
   <component name="ProjectId" id="1oaoowGt3Rx6qdxTJRjW8c2K603" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -46,7 +50,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../SCEnddemo" />
-    <property name="settings.editor.selected.configurable" value="vcs.Git" />
+    <property name="settings.editor.selected.configurable" value="org.jetbrains.plugins.github.ui.GithubSettingsConfigurable" />
   </component>
   <component name="RunManager" selected="Python.setup">
     <configuration name="__init__" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
@@ -341,7 +345,7 @@
       <workItem from="1626578471562" duration="18920000" />
       <workItem from="1626852412159" duration="5868000" />
       <workItem from="1626934298219" duration="1633000" />
-      <workItem from="1626944223114" duration="7196000" />
+      <workItem from="1626944223114" duration="7495000" />
     </task>
     <servers />
   </component>
