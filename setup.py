@@ -9,11 +9,20 @@ Describe:
 
 import setuptools
 
+
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
+
 setuptools.setup(
     name="SCend",
     version="1.0.0",
     author="Bingchen Wang",
     author_email="wangbingchen@buaa.edu.cn",
+    description="SCEnd: A matrix factorization method for single-cell",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/deepomicslab/SCEnd",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

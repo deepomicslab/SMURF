@@ -6,8 +6,7 @@ Version:  V 0.1
 File:     __init__.py.py
 Describe: 
 """
-
 from .version import __version__
-from .scend import SCend
+from .scend import SCEnd
 
-name = 'SCend'
+name = 'SCEnd'

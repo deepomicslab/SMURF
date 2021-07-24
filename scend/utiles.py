@@ -70,3 +70,25 @@ def check_between(v_min, v_max, **params):
         if params[p] < v_min or params[p] > v_max:
             raise ValueError("Expected {} between {} and {}, "
                              "got {}".format(p, v_min, v_max, params[p]))
+
+
+def check_noise_model(**params):
+    for p in params:
+        if (params[p] != "CV") and (params[p] != "Fano") and (params[p] != "CCV"):
+            raise ValueError("Expected {} be one in CV, Fano, or CCV, got {}".format(p, params[p]))
+
+
+
+def dataNormalization(dataFrame):
+    """
+    对数据进行标准化
+    :param dataFrame: 输入的dataframe
+    :return: 标准化后的数据，以及每个细胞对应的sizefactor
+    """
+    librarySize = dataFrame.sum(axis=0)
+    meanLibrarySize = librarySize.mean()
+    sizeFactors = librarySize / meanLibrarySize
+    normalizedDataFrame = dataFrame / sizeFactors
+    return normalizedDataFrame, sizeFactors
+
+

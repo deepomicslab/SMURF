@@ -9,32 +9,31 @@ Describe:
 
 from lossFunc import *
 from initialParams import *
+import pandas as pd
 from optimize import CVOptimize, FanoOptimize, CCVOptimize
 import utiles
 import warnings
 warnings.filterwarnings("ignore")
 
 
-class SCend():
-    def __init__(self, initialDataFrame, n_features, steps=10, alpha=1e-5, eps=10, normalize=False, calculateIntialNoiseFactor=False):
-        self.A = initialDataFrame.values
-        self.genes = initialDataFrame.shape[0]
-        self.cells = initialDataFrame.shape[1]
+class SCEnd():
+    def __init__(self, n_features, steps=10, alpha=1e-5, eps=10, noise_model="Fano", normalize=False, calculateIntialNoiseFactor=False, estimate_only=False):
+
         self.K = n_features
-        self.batchSize = normalize*10
+        self.batchSize = n_features * 10
         self.steps = steps
         self.alpha = alpha
         self.eps = eps
         self.normalize = normalize
 
 
-
-        self.P, self.Q = initialMatrices(initialDataFrame.values, self.K)
+        self.noise_model = noise_model
         self.calculateLossFunc = True
+        self.estmate_only = estimate_only
         self.calculateIntialNoiseFactor = calculateIntialNoiseFactor
 
     def _check_params(self):
-        """Check I-Impute parameters
+        """Check parameters
 
         This allows us to fail early - otherwise certain unacceptable
         parameter choices, such as n='10.5', would only fail after
@@ -44,11 +43,13 @@ class SCend():
         ------
         ValueError : unacceptable choice of parameters
         """
-        utiles.check_positive(n_features=self.K, eps=self.eps, batchsize=self.batchSize, alpha=self.alpha, steps=self.steps)
+        utiles.check_positive(n_features=self.K, eps=self.eps, batchsize=self.batchSize, alpha=self.alpha,
+                              steps=self.steps)
         utiles.check_int(n_features=self.K, steps=self.steps)
         utiles.check_between(v_min=0, v_max=min(self.genes, self.cells), n_features=self.K)
         utiles.check_bool(normalize=self.normalize)
         utiles.check_bool(iteration=self.calculateIntialNoiseFactor)
+        utiles.check_noise_model(noise_model=self.noise_model)
 
     def MFConstantVariance(self):
         P = self.P
@@ -126,11 +127,7 @@ class SCend():
             print("number of iteration: ", step+1,"/",self.steps)
         mu = np.dot(P, Q)
         mu[mu < 0] = 0
-        return {
-            "estimate": mu,
-            "left_matrix": P,
-            "right_matrix": Q
-        }
+        return mu, P, Q
 
 
     def MFFano(self):
@@ -177,7 +174,7 @@ class SCend():
 
             if abs(LossFunc - LossFuncPre) < self.eps:
                 Lossf.append(LossFunc)
-                print("finish")
+                print("already converge")
                 break
             else:
                 Lossf.append(LossFunc)
@@ -207,11 +204,7 @@ class SCend():
         mu = np.dot(P, Q)
         mu[mu < 0] = 0
 
-        return {
-            "estimate": mu,
-            "left_matrix": P,
-            "right_matrix": Q
-        }
+        return mu, P, Q
 
     def MFConstCoeffiVariation(self):
         P = self.P
@@ -254,7 +247,7 @@ class SCend():
 
             if abs(LossFunc - LossFuncPre) < self.eps:
                 Lossf.append(LossFunc)
-                print("finish")
+                print("already converge")
                 break
             else:
                 Lossf.append(LossFunc)
@@ -286,8 +279,99 @@ class SCend():
         mu = np.dot(P, Q)
         mu[mu < 0] = 0
 
-        return {
-                "estimate": mu,
-                "left_matrix": P,
-                "right_matrix": Q
-                }
+        return mu, P, Q
+
+    def scend_impute(self, initialDataFrame):
+        self.initialDataFrame = initialDataFrame
+        self.genes = initialDataFrame.shape[0]
+        self.cells = initialDataFrame.shape[1]
+        self.genesNames = initialDataFrame._stat_axis.values.tolist()
+        self.cellsNames = initialDataFrame.columns.values.tolist()
+
+
+        print("Running SCEnd on {} cells and {} genes".format(self.cells, self.genes))
+
+
+
+        if self.normalize:
+            print("normalizing data by library size...")
+            normalizedDataframe, self.size_factors = utiles.dataNormalization(self.initialDataFrame)
+            self.A = normalizedDataframe.values
+            self.P, self.Q = initialMatrices(normalizedDataframe.values, self.K)
+
+            self._check_params()
+
+            print("preprocessing data...")
+
+            if self.noise_model == "CV":
+                mu, P, Q = self.MFConstantVariance()
+
+            if self.noise_model == "Fano":
+                mu, P, Q = self.MFFano()
+
+            if self.noise_model == "CCV":
+                mu, P, Q = self.MFConstCoeffiVariation()
+
+
+
+
+            newDataFrame = pd.DataFrame(mu, index=self.genesNames, columns=self.cellsNames)
+            newDataFrame = newDataFrame * self.size_factors
+
+
+            res = {}
+
+            res["estimate"] = newDataFrame
+            res["left_matrix"] = pd.DataFrame(P, index=self.genesNames, columns=None)
+            res["right_matrix"] = pd.DataFrame(Q, index=None, columns=self.cellsNames)
+
+            if self.estmate_only:
+                return res["estimate"]
+            else:
+                return res
+
+        else:
+            self.A = self.initialDataFrame.values
+            self.P, self.Q = initialMatrices(self.initialDataFrame.values, self.K)
+
+            self._check_params()
+
+            print("preprocessing data...")
+
+            if self.noise_model == "CV":
+                mu, P, Q = self.MFConstantVariance()
+
+            if self.noise_model == "Fano":
+                mu, P, Q = self.MFFano()
+
+            if self.noise_model == "CCV":
+                mu, P, Q = self.MFConstCoeffiVariation()
+
+            newDataFrame = pd.DataFrame(mu, index=self.genesNames, columns=self.cellsNames)
+
+            res = {}
+
+            res["estimate"] = newDataFrame
+            res["left_matrix"] = pd.DataFrame(P, index=self.genesNames, columns=None)
+            res["right_matrix"] = pd.DataFrame(Q, index=None, columns=self.cellsNames)
+
+            if self.estmate_only:
+                return res["estimate"]
+            else:
+                return res
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
