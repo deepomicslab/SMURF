@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f6fcac9a-95f2-4ecf-9fa7-6b4d153e2f1e" name="Default Changelist" comment="create license" />
+    <list default="true" id="f6fcac9a-95f2-4ecf-9fa7-6b4d153e2f1e" name="Default Changelist" comment="create license">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -352,7 +355,7 @@
       <workItem from="1626934298219" duration="1633000" />
       <workItem from="1626944223114" duration="7495000" />
       <workItem from="1627055753796" duration="189000" />
-      <workItem from="1627116405751" duration="15924000" />
+      <workItem from="1627116405751" duration="16735000" />
     </task>
     <task id="LOCAL-00001" summary="create license">
       <created>1627132579222</created>

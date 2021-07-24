@@ -15,7 +15,7 @@ with open("README.md", "r") as fh:
 
 
 setuptools.setup(
-    name="SCend",
+    name="scend",
     version="1.0.0",
     author="Bingchen Wang",
     author_email="wangbingchen@buaa.edu.cn",
