@@ -16,7 +16,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="scend",
-    version="1.0.0",
+    version="1.0.1",
     author="Bingchen Wang",
     author_email="wangbingchen@buaa.edu.cn",
     description="SCEnd: A matrix factorization method for single-cell",

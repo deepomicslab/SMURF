@@ -7,17 +7,17 @@ File:     scend.py
 Describe: 
 """
 
-from lossFunc import *
-from initialParams import *
+from .lossFunc import *
+from .initialParams import *
 import pandas as pd
-from optimize import CVOptimize, FanoOptimize, CCVOptimize
-import utiles
+from .optimize import CVOptimize, FanoOptimize, CCVOptimize
+from . import utiles
 import warnings
 warnings.filterwarnings("ignore")
 
 
 class SCEnd():
-    def __init__(self, n_features, steps=10, alpha=1e-5, eps=10, noise_model="Fano", normalize=False, calculateIntialNoiseFactor=False, estimate_only=False):
+    def __init__(self, n_features=20, steps=10, alpha=1e-5, eps=10, noise_model="Fano", normalize=True, calculateIntialNoiseFactor=False, estimate_only=False):
 
         self.K = n_features
         self.batchSize = n_features * 10
@@ -322,8 +322,8 @@ class SCEnd():
             res = {}
 
             res["estimate"] = newDataFrame
-            res["left_matrix"] = pd.DataFrame(P, index=self.genesNames, columns=None)
-            res["right_matrix"] = pd.DataFrame(Q, index=None, columns=self.cellsNames)
+            res["gene latent factor matrix"] = pd.DataFrame(P, index=self.genesNames, columns=None)
+            res["cell latent factor matrix"] = pd.DataFrame(Q, index=None, columns=self.cellsNames)
 
             if self.estmate_only:
                 return res["estimate"]
@@ -352,8 +352,8 @@ class SCEnd():
             res = {}
 
             res["estimate"] = newDataFrame
-            res["left_matrix"] = pd.DataFrame(P, index=self.genesNames, columns=None)
-            res["right_matrix"] = pd.DataFrame(Q, index=None, columns=self.cellsNames)
+            res["gene latent factor matrix"] = pd.DataFrame(P, index=self.genesNames, columns=None)
+            res["cell latent factor matrix"] = pd.DataFrame(Q, index=None, columns=self.cellsNames)
 
             if self.estmate_only:
                 return res["estimate"]
