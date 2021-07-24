@@ -9,4 +9,4 @@ Describe:
 from .version import __version__
 from .scend import SCEnd
 
-name = 'SCEnd'
+name = 'scend'
