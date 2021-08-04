@@ -52,34 +52,27 @@ class SCEnd():
         utiles.check_noise_model(noise_model=self.noise_model)
 
     def MFConstantVariance(self):
-        P = self.P
-        Q = self.Q
+        G = self.G
+        H = self.H
         A = self.A
-        mu = np.dot(P, Q)
+        u = np.dot(G, H)
         Vc = np.ones((1, self.cells)) * 1.0
 
         if self.calculateIntialNoiseFactor:
-            Vg = getv(self.A, mu)
+            Vg = getv(self.A, u)
             v = np.dot(Vg, Vc)
         else:
             Vg = np.ones((self.genes, 1))
             v = np.dot(Vg, Vc)
 
-        LossFuncPre = 0
+        LossFuncGre = 0
         LossFunc = 0
         Lossf = []
 
         nonZerosInd = np.nonzero(A)
         numNonZeros = nonZerosInd[0].size
-        nonZeroElem = []
-
-        for indice in range(numNonZeros):
-            g = nonZerosInd[0][indice]
-            c = nonZerosInd[1][indice]
-            element = [g, c]
-            nonZeroElem.append(element)
-        nonZeroElem = np.array(nonZeroElem)
-        print("start iteration")
+        nonZeroElem = np.concatenate((nonZerosInd[0].reshape(numNonZeros, 1), nonZerosInd[1].reshape(numNonZeros, 1)),
+                                     axis=1)
 
 
         for step in range(self.steps):
@@ -89,19 +82,19 @@ class SCEnd():
                     g = element[0]
                     c = element[1]
 
-                    LossFuncCG = LossFunctionConstantVariance(mu[g][c], v[g][c], A[g][c])
+                    LossFuncCG = LossFunctionConstantVariance(u[g][c], v[g][c], A[g][c], G, H, g, c)
                     LossFunc = LossFunc + LossFuncCG
             else:
                 LossFunc = (step+1)*(self.eps+1)
 
 
-            if abs(LossFunc - LossFuncPre) < self.eps:
+            if abs(LossFunc - LossFuncGre) < self.eps:
                 Lossf.append(LossFunc)
                 print("already converge")
                 break
             else:
                 Lossf.append(LossFunc)
-                LossFuncPre = LossFunc
+                LossFuncGre = LossFunc
                 LossFunc = 0
 
                 np.random.shuffle(nonZeroElem)
@@ -111,54 +104,48 @@ class SCEnd():
                 for element in batchElements:
                     g = element[0]
                     c = element[1]
-                    if mu[g][c] <= 0.01:
-                        mu[g][c] = 0.01
+                    if u[g][c] <= 0.01:
+                        u[g][c] = 0.01
                     if Vg[g][0] <= 1e-09:
                         Vg[g][0] = 1e-09
 
-                    dP, dQ, dVg = CVOptimize(A, P, Q, mu, Vg, Vc, v, g, c)
-                    P[g, :] = P[g, :] + self.alpha * dP
-                    Q[:, c] = Q[:, c] + self.alpha * dQ
+                    dG, dH, dVg = CVOptimize(A, G, H, u, Vg, Vc, v, g, c)
+                    G[g, :] = G[g, :] + self.alpha * dG
+                    H[:, c] = H[:, c] + self.alpha * dH
                     Vg[g, :] = Vg[g, :] + self.alpha * dVg
 
-                mu = np.dot(P, Q)
+                u = np.dot(G, H)
                 v = np.dot(Vg, Vc)
 
-            print("number of iteration: ", step+1,"/",self.steps)
-        mu = np.dot(P, Q)
-        mu[mu < 0] = 0
-        return mu, P, Q
+            print("number of iteration: ", step+1, "/", self.steps)
+        u = np.dot(G, H)
+        u[u < 0] = 0
+        return u, G, H
 
 
     def MFFano(self):
-        P = self.P
-        Q = self.Q
+        G = self.G
+        H = self.H
         A = self.A
-        mu = np.dot(P, Q)
+        u = np.dot(G, H)
         bc = np.ones((1, self.cells)) * 1.0
 
         if self.calculateIntialNoiseFactor:
-            bg = getb(self.A, mu)
+            bg = getb(self.A, u)
         else:
             bg = np.ones((self.genes, 1)) * 1.0
 
         b = np.dot(bg, bc)
 
         LossFunc = 0
-        LossFuncPre = 0
+        LossFuncGre = 0
         Lossf = []
 
 
         nonZerosInd = np.nonzero(A)
         numNonZeros = nonZerosInd[0].size
-        nonZeroElem = []
-
-        for indice in range(numNonZeros):
-            g = nonZerosInd[0][indice]
-            c = nonZerosInd[1][indice]
-            element = [g, c]
-            nonZeroElem.append(element)
-        nonZeroElem = np.array(nonZeroElem)
+        nonZeroElem = np.concatenate((nonZerosInd[0].reshape(numNonZeros, 1), nonZerosInd[1].reshape(numNonZeros, 1)),
+                                     axis=1)
 
         for step in range(self.steps):
             if self.calculateLossFunc:
@@ -166,19 +153,19 @@ class SCEnd():
                     g = element[0]
                     c = element[1]
 
-                    LossFuncCG = LossFunctionFano(mu[g][c], b[g][c], A[g][c])
+                    LossFuncCG = LossFunctionFano(u[g][c], b[g][c], A[g][c], G, H, g, c)
                     LossFunc = LossFunc + LossFuncCG
             else:
                 LossFunc = (step + 1)*self.eps
 
 
-            if abs(LossFunc - LossFuncPre) < self.eps:
+            if abs(LossFunc - LossFuncGre) < self.eps:
                 Lossf.append(LossFunc)
                 print("already converge")
                 break
             else:
                 Lossf.append(LossFunc)
-                LossFuncPre = LossFunc
+                LossFuncGre = LossFunc
                 LossFunc = 0
 
                 np.random.shuffle(nonZeroElem)
@@ -187,71 +174,65 @@ class SCEnd():
                 for element in batchElements:
                     g = element[0]
                     c = element[1]
-                    if mu[g][c] <= 0.01:
-                        mu[g][c] = 0.01
+                    if u[g][c] <= 0.01:
+                        u[g][c] = 0.01
                     if bg[g][0] <= 1e-09:
                         bg[g][0] = 1e-09
                     b[g][c] = np.dot(bg[g, :], bc[:, c])
 
-                    dP, dQ, dbg = FanoOptimize(A, P, Q, mu, bg, bc, b, g, c)
-                    P[g, :] = P[g, :] + self.alpha * dP
-                    Q[:, c] = Q[:, c] + self.alpha * dQ
+                    dG, dH, dbg = FanoOptimize(A, G, H, u, bg, bc, b, g, c)
+                    G[g, :] = G[g, :] + self.alpha * dG
+                    H[:, c] = H[:, c] + self.alpha * dH
                     bg[g, :] = bg[g, :] + self.alpha * dbg
-                mu = np.dot(P, Q)
+                u = np.dot(G, H)
                 b = np.dot(bg, bc)
             self.alpha = self.alpha*(1 - (np.float(step)/np.float(self.steps)))
             print("number of iteration: ", step+1, "/", self.steps)
-        mu = np.dot(P, Q)
-        mu[mu < 0] = 0
+        u = np.dot(G, H)
+        u[u < 0] = 0
 
-        return mu, P, Q
+        return u, G, H
 
     def MFConstCoeffiVariation(self):
-        P = self.P
-        Q = self.Q
+        G = self.G
+        H = self.H
         A = self.A
-        mu = np.dot(P, Q)
+        u = np.dot(G, H)
         ac = np.ones((1, self.cells))
         if self.calculateIntialNoiseFactor:
-            ag = geta(self.A, mu)
+            ag = geta(self.A, u)
         else:
             ag = np.ones((self.genes, 1))
 
         a = np.dot(ag, ac)
 
         LossFunc = 0
-        LossFuncPre = 0
+        LossFuncGre = 0
         Lossf = []
 
         nonZerosInd = np.nonzero(A)
         numNonZeros = nonZerosInd[0].size
-        nonZeroElem = []
-
-        for indice in range(numNonZeros):
-            g = nonZerosInd[0][indice]
-            c = nonZerosInd[1][indice]
-            element = [g, c]
-            nonZeroElem.append(element)
-        nonZeroElem = np.array(nonZeroElem)
+        nonZeroElem = np.concatenate((nonZerosInd[0].reshape(numNonZeros, 1), nonZerosInd[1].reshape(numNonZeros, 1)),
+                                     axis=1)
 
         for step in range(self.steps):
             if self.calculateLossFunc:
                 for element in nonZeroElem:
                     g = element[0]
                     c = element[1]
-                    LossFuncCG = LossFunctionFano(mu[g][c], a[g][c], A[g][c])
+                    LossFuncCG = LossFunctionConstantCoefficientVariation(u[g][c], a[g][c], A[g][c], G, H, g, c)
                     LossFunc = LossFunc + LossFuncCG
             else:
                 LossFunc = (step + 1)*self.eps
 
 
-            if abs(LossFunc - LossFuncPre) < self.eps:
+            if abs(LossFunc - LossFuncGre) < self.eps:
                 Lossf.append(LossFunc)
                 print("already converge")
                 break
             else:
                 Lossf.append(LossFunc)
-                LossFuncPre = LossFunc
+                LossFuncGre = LossFunc
                 LossFunc = 0
 
                 np.random.shuffle(nonZeroElem)
@@ -260,26 +241,25 @@ class SCEnd():
                 for element in batchElements:
                     g = element[0]
                     c = element[1]
-                    if mu[g][c] <= 0.01:
-                        mu[g][c] = 0.01
+                    if u[g][c] <= 0.01:
+                        u[g][c] = 0.01
                     if ag[g][0] <= 1e-09:
                         ag[g][0] = 1e-09
                     if ac[0][c] <= 1e-09:
                         ac[0][c] = 1e-09
 
-                    dP, dQ, dag, dac = CCVOptimize(A, P, Q, mu, ag, ac, a, g, c)
+                    dG, dH, dag, dac = CCVOptimize(A, G, H, u, ag, ac, a, g, c)
 
-                    P[g, :] = P[g, :] + self.alpha * dP
-                    Q[:, c] = Q[:, c] + self.alpha * dQ
+                    G[g, :] = G[g, :] + self.alpha * dG
+                    H[:, c] = H[:, c] + self.alpha * dH
                     ag[g, :] = ag[g, :] + self.alpha * dag
-                    ac[:, c] = ac[:, c] + self.alpha * dac
-                mu = np.dot(P, Q)
+                u = np.dot(G, H)
                 a = np.dot(ag, ac)
             print("number of iteration: ", step + 1, "/", self.steps)
-        mu = np.dot(P, Q)
-        mu[mu < 0] = 0
+        u = np.dot(G, H)
+        u[u < 0] = 0
 
-        return mu, P, Q
+        return u, G, H
 
     def scend_impute(self, initialDataFrame):
         self.initialDataFrame = initialDataFrame
@@ -297,33 +277,33 @@ class SCEnd():
             print("normalizing data by library size...")
             normalizedDataframe, self.size_factors = utiles.dataNormalization(self.initialDataFrame)
             self.A = normalizedDataframe.values
-            self.P, self.Q = initialMatrices(normalizedDataframe.values, self.K)
+            self.G, self.H = initialMatrices(normalizedDataframe.values, self.K)
 
             self._check_params()
 
             print("preprocessing data...")
 
             if self.noise_model == "CV":
-                mu, P, Q = self.MFConstantVariance()
+                u, G, H = self.MFConstantVariance()
 
             if self.noise_model == "Fano":
-                mu, P, Q = self.MFFano()
+                u, G, H = self.MFFano()
 
             if self.noise_model == "CCV":
-                mu, P, Q = self.MFConstCoeffiVariation()
+                u, G, H = self.MFConstCoeffiVariation()
 
 
 
 
-            newDataFrame = pd.DataFrame(mu, index=self.genesNames, columns=self.cellsNames)
+            newDataFrame = pd.DataFrame(u, index=self.genesNames, columns=self.cellsNames)
             newDataFrame = newDataFrame * self.size_factors
 
 
             res = {}
 
             res["estimate"] = newDataFrame
-            res["gene latent factor matrix"] = pd.DataFrame(P, index=self.genesNames, columns=None)
-            res["cell latent factor matrix"] = pd.DataFrame(Q, index=None, columns=self.cellsNames)
+            res["gene latent factor matrix"] = pd.DataFrame(G, index=self.genesNames, columns=None)
+            res["cell latent factor matrix"] = pd.DataFrame(H, index=None, columns=self.cellsNames)
 
             if self.estmate_only:
                 return res["estimate"]
@@ -332,28 +312,28 @@ class SCEnd():
 
         else:
             self.A = self.initialDataFrame.values
-            self.P, self.Q = initialMatrices(self.initialDataFrame.values, self.K)
+            self.G, self.H = initialMatrices(self.initialDataFrame.values, self.K)
 
             self._check_params()
 
             print("preprocessing data...")
 
             if self.noise_model == "CV":
-                mu, P, Q = self.MFConstantVariance()
+                u, G, H = self.MFConstantVariance()
 
             if self.noise_model == "Fano":
-                mu, P, Q = self.MFFano()
+                u, G, H = self.MFFano()
 
             if self.noise_model == "CCV":
-                mu, P, Q = self.MFConstCoeffiVariation()
+                u, G, H = self.MFConstCoeffiVariation()
 
-            newDataFrame = pd.DataFrame(mu, index=self.genesNames, columns=self.cellsNames)
+            newDataFrame = pd.DataFrame(u, index=self.genesNames, columns=self.cellsNames)
 
             res = {}
 
             res["estimate"] = newDataFrame
-            res["gene latent factor matrix"] = pd.DataFrame(P, index=self.genesNames, columns=None)
-            res["cell latent factor matrix"] = pd.DataFrame(Q, index=None, columns=self.cellsNames)
+            res["gene latent factor matrix"] = pd.DataFrame(G, index=self.genesNames, columns=None)
+            res["cell latent factor matrix"] = pd.DataFrame(H, index=None, columns=self.cellsNames)
 
             if self.estmate_only:
                 return res["estimate"]

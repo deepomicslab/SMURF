@@ -81,9 +81,17 @@ def check_noise_model(**params):
 
 def dataNormalization(dataFrame):
     """
-    对数据进行标准化
-    :param dataFrame: 输入的dataframe
-    :return: 标准化后的数据，以及每个细胞对应的sizefactor
+    Normalization based on library size
+
+    Parameters:
+
+    -----------
+
+    :param dataFrame: origin dataframe
+
+    -----------
+
+    :return: dataframe normalized，sizefactors
     """
     librarySize = dataFrame.sum(axis=0)
     meanLibrarySize = librarySize.mean()

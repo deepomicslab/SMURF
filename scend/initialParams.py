@@ -14,14 +14,14 @@ import warnings
 from sklearn.decomposition import TruncatedSVD
 
 
-def initialMatrices(mu0, K):
-    mu = mu0
+def initialMatrices(U_0, K):
+    U = U_0
     svd = TruncatedSVD(n_components=K)
-    svd.fit(mu)
-    W = svd.fit_transform(mu)
+    svd.fit(U)
+    G = svd.fit_transform(U)
     H = svd.components_
 
-    return W, H
+    return G, H
 
 
 def loglikv(args):
