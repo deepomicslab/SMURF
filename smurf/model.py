@@ -3,7 +3,7 @@
 Time:     2021/7/22 17:29
 Author:   WANG Bingchen
 Version:  V 0.1
-File:     scend.py
+File:     model.py
 Describe: 
 """
 
@@ -16,7 +16,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-class SCEnd():
+class SMURF():
     def __init__(self, n_features=20, steps=10, alpha=1e-5, eps=10, noise_model="Fano", normalize=True, calculateIntialNoiseFactor=False, estimate_only=False):
 
         self.K = n_features
@@ -261,7 +261,7 @@ class SCEnd():
 
         return u, G, H
 
-    def scend_impute(self, initialDataFrame):
+    def smurf_impute(self, initialDataFrame):
         self.initialDataFrame = initialDataFrame
         self.genes = initialDataFrame.shape[0]
         self.cells = initialDataFrame.shape[1]

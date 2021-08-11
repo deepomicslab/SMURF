@@ -7,6 +7,6 @@ File:     __init__.py.py
 Describe: 
 """
 from .version import __version__
-from .scend import SCEnd
+from .model import SMURF
 
-name = 'scend'
+name = 'smurf-imputation'

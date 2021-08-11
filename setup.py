@@ -15,14 +15,14 @@ with open("README.md", "r") as fh:
 
 
 setuptools.setup(
-    name="scend",
-    version="1.0.3",
+    name="smurf-imputation",
+    version="1.0.5",
     author="Bingchen Wang",
     author_email="wangbingchen@buaa.edu.cn",
-    description="SCEnd: A matrix factorization method for single-cell",
+    description="SMURF : A matrix factorization method for single-cell",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/deepomicslab/SCEnd",
+    url="https://github.com/deepomicslab/SMURF",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

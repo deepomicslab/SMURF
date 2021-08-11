@@ -1,4 +1,4 @@
-# SCEnd
+# SMURF
 A matrix factorization method for single-cell
 
 ## Pre-requirements
@@ -13,30 +13,30 @@ A matrix factorization method for single-cell
 ### Installation with pip
 To install with pip, run the following from a terminal:
 ```Bash
-pip install scend
+pip install smurf-imputaion
 ```
 
 ## Usage
 
 ### Basic use
 ```Python
-import scend
+import smurf
 import pandas as pd
 
 # read your data, the rows in the data represent genes, and the columns represent cells
 data = pd.read_csv("data.csv", header=0, index_col=0)
 
 # create a SCEnd object which only return the imputed data
-operator = scend.SCEnd(n_features=10, estimate_only=True)
+operator = smurf.SMURF(n_features=10, estimate_only=True)
 
 # impute
-data_imputed = operator.scend_impute(data)
+data_imputed = operator.smurf_impute(data)
 
 # create a SCEnd object
-operator = scend.SCEnd(n_features=10, estimate_only=False)
+operator = smurf.SMURF(n_features=10, estimate_only=False)
 
 # impute
-res = operator.scend_impute(data)
+res = operator.smurf_impute(data)
 
 # get the results
 data_imputed = res["estimate"]
@@ -49,7 +49,7 @@ cell_matrix = res["cell latent factor matrix"]
 
 ### Parameters
 ```Python
-SCEnd(n_features=20, steps=10, alpha=1e-5, eps=10, noise_model="Fano", normalize=True, estimate_only=False)
+SMURF(n_features=20, steps=10, alpha=1e-5, eps=10, noise_model="Fano", normalize=True, estimate_only=False)
 ```
 Parameters
 
@@ -80,10 +80,10 @@ Parameters
     
 * normalize : boolean, optional, default: True
 
-    By default, SCEnd takes in an unnormalized matrix and performs library size normalization during the denoising step. However, if your data is already normalized or normalization is not desired, you can set normalize=False.
+    By default, SMURF takes in an unnormalized matrix and performs library size normalization during the denoising step. However, if your data is already normalized or normalization is not desired, you can set normalize=False.
 
 * estimate_only : boolean, optional, default: False
 
-    Generally, the SCEnd returns a dictionary which contains the imputed matrix and gene latent factor matrix and cell latent factor matrix. If you have no need of the latent factor matrix, you can set estimate_only=True.
+    Generally, the SMURF returns a dictionary which contains the imputed matrix and gene latent factor matrix and cell latent factor matrix. If you have no need of the latent factor matrix, you can set estimate_only=True.
 
 
