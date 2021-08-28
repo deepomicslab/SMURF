@@ -16,7 +16,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="smurf-imputation",
-    version="1.0.5",
+    version="1.0.6",
     author="Bingchen Wang",
     author_email="wangbingchen@buaa.edu.cn",
     description="SMURF : A matrix factorization method for single-cell",
