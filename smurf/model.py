@@ -306,6 +306,9 @@ class SMURF():
             res["gene latent factor matrix"] = pd.DataFrame(G, index=self.genesNames, columns=None)
             res["cell latent factor matrix"] = pd.DataFrame(H, index=None, columns=self.cellsNames)
 
+            self.glfm = G
+            self.clfm = H
+
             if self.estmate_only:
                 return res["estimate"]
             else:
@@ -346,7 +349,7 @@ class SMURF():
                 return res
 
 
-    def smurf_cell_circle(self, n_neighbors=20, min_dist=0.01, major_axis=3, minor_axis=2, k=0.2):
+    def smurf_cell_circle(self, cells_data=None, n_neighbors=20, min_dist=0.01, major_axis=3, minor_axis=2, k=0.2):
         self.n_neighbors = n_neighbors
         self.min_dist = min_dist
         self.major_axis = major_axis
@@ -354,7 +357,13 @@ class SMURF():
         self.k = k
 
 
-        data = self.clfm
+        if cells_data:
+            data = cells_data
+        else:
+            if self.clfm.all():
+                data = self.clfm
+            else:
+                raise AttributeError("Cells Data Expected")
 
 
 

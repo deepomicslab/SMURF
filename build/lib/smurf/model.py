@@ -12,6 +12,7 @@ from .initialParams import *
 import pandas as pd
 from .optimize import CVOptimize, FanoOptimize, CCVOptimize
 from . import utiles
+from .cell_circle import CellCircle
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -305,6 +306,9 @@ class SMURF():
             res["gene latent factor matrix"] = pd.DataFrame(G, index=self.genesNames, columns=None)
             res["cell latent factor matrix"] = pd.DataFrame(H, index=None, columns=self.cellsNames)
 
+            self.glfm = G
+            self.clfm = H
+
             if self.estmate_only:
                 return res["estimate"]
             else:
@@ -335,10 +339,50 @@ class SMURF():
             res["gene latent factor matrix"] = pd.DataFrame(G, index=self.genesNames, columns=None)
             res["cell latent factor matrix"] = pd.DataFrame(H, index=None, columns=self.cellsNames)
 
+            self.glfm = G
+            self.clfm = H
+
+
             if self.estmate_only:
                 return res["estimate"]
             else:
                 return res
+
+
+    def smurf_cell_circle(self, cells_data=None, n_neighbors=20, min_dist=0.01, major_axis=3, minor_axis=2, k=0.2):
+        self.n_neighbors = n_neighbors
+        self.min_dist = min_dist
+        self.major_axis = major_axis
+        self.minor_axis = minor_axis
+        self.k = k
+
+
+        if cells_data:
+            data = cells_data
+        else:
+            if self.clfm.all():
+                data = self.clfm
+            else:
+                raise AttributeError("Cells Data Expected")
+
+
+
+        cell_circle_mapper = CellCircle(n_neighbors=self.n_neighbors, min_dist=self.min_dist)
+        res = cell_circle_mapper.cal_cell_circle(data, a=self.major_axis, b=self.minor_axis, k=0.2)
+
+        return res
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

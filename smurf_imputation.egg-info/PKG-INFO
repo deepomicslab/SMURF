@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: smurf-imputation
-Version: 1.0.5
+Version: 1.0.9
 Summary: SMURF : A matrix factorization method for single-cell
 Home-page: https://github.com/deepomicslab/SMURF
 Author: Bingchen Wang
@@ -15,13 +15,14 @@ Description: # SMURF
         * pandas
         * scipy
         * scikit-learn
+        * umap-learn
         
         ## Installation
         
         ### Installation with pip
         To install with pip, run the following from a terminal:
         ```Bash
-        pip install smurf-imputaion
+        pip install smurf-imputation
         ```
         
         ## Usage
@@ -52,6 +53,22 @@ Description: # SMURF
         gene_matrix = res["gene latent factor matrix"]
         
         cell_matrix = res["cell latent factor matrix"]
+        
+        
+        # get cell-circle
+        cell_circle = operator.smurf_cell_circle(
+          n_neighbors=20, min_dist=0.01, major_axis=3, minor_axis=2, k=0.2
+        )
+        
+        # or get cell-cirecle directly from you own data
+        mapper = smurf.SMURF()
+        cell_circle = mapper.smurf_cell_circle(cells_data=your_own_data)
+        
+        # get result in different coordinate
+        angle = cell_circle["angle"]
+        plane_embedding = cell_circle["plane_embedding"]
+        
+        
         
         ```
         
@@ -93,6 +110,35 @@ Description: # SMURF
         * estimate_only : boolean, optional, default: False
         
             Generally, the SMURF returns a dictionary which contains the imputed matrix and gene latent factor matrix and cell latent factor matrix. If you have no need of the latent factor matrix, you can set estimate_only=True.
+        
+        ```Python
+        smurf_cell_circle(cells_data=None, n_neighbors=20, min_dist=0.01, major_axis=3, minor_axis=2, k=0.2)
+        ```
+        * cells_data : array of 2D, optional, default: None
+          
+            Cells data to be processed. If it's not None, the model will process your own data, or please use SMURF process the original data and the model will calculate the cell circle from the cell latent factor matrix of the feedback.
+          
+        * n_neighbors : int, optional, default: 20
+          
+            The parameter controls how our model balances local versus global structure in the data.
+          
+        * min_dist : float, optional, default: 0.01
+        
+            This parameter controls how tightly SMURF is allowed to pack points together
+        
+        * major_axis : float, optional, default: 3
+        
+            Major axis length of the oval.
+        
+        * minor_axis : float, optional, default: 2
+            
+            Minor axis length of the oval.
+        
+        * k : float, optional, default: 0.2
+        
+            Deformation parameter of the oval.
+        
+        
         
         
         

@@ -1,6 +1,8 @@
 README.md
 setup.py
 smurf/__init__.py
+smurf/cell_circle.py
+smurf/distance.py
 smurf/initialParams.py
 smurf/lossFunc.py
 smurf/model.py
