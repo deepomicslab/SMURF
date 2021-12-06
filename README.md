@@ -27,13 +27,13 @@ import pandas as pd
 # read your data, the rows in the data represent genes, and the columns represent cells
 data = pd.read_csv("data.csv", header=0, index_col=0)
 
-# create a SCEnd object which only return the imputed data
+# create a SMURF object which only return the imputed data
 operator = smurf.SMURF(n_features=10, estimate_only=True)
 
 # impute
 data_imputed = operator.smurf_impute(data)
 
-# create a SCEnd object
+# create a SMURF object
 operator = smurf.SMURF(n_features=10, estimate_only=False)
 
 # impute
@@ -66,7 +66,7 @@ plane_embedding = cell_circle["plane_embedding"]
 
 ### Parameters
 ```Python
-SMURF(n_features=20, steps=10, alpha=1e-5, eps=10, noise_model="Fano", normalize=True, estimate_only=False)
+SMURF(n_features=20, steps=10, alpha=1e-5, eps=10,lambda2=0.1, noise_model="Fano", normalize=True, estimate_only=False)
 ```
 Parameters
 
@@ -74,7 +74,7 @@ Parameters
 
     The number of features during the matrix factorizaiton.
 
-* steps : int, optional, default: 0.5
+* steps : int, optional, default: 10
 
     The max number of iteration.
 
@@ -85,6 +85,10 @@ Parameters
 * eps : float, optional, default: 10
     
     The threshold at which the objective function stops updating
+
+* lambda2 : float, optional, default: 0.1
+    
+    The coefficient of L2 regularization
   
 * noise_model: boolean, optional, default: "Fano"
     

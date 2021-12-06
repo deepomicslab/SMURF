@@ -18,7 +18,7 @@ warnings.filterwarnings("ignore")
 
 
 class SMURF():
-    def __init__(self, n_features=20, steps=10, alpha=1e-5, eps=10, noise_model="Fano", normalize=True, calculateIntialNoiseFactor=False, estimate_only=False):
+    def __init__(self, n_features=20, steps=10, alpha=1e-5, eps=10, lambda2=0.1, noise_model="Fano", normalize=True, calculateIntialNoiseFactor=False, estimate_only=False):
 
         self.K = n_features
         self.batchSize = n_features * 10
@@ -26,6 +26,7 @@ class SMURF():
         self.alpha = alpha
         self.eps = eps
         self.normalize = normalize
+        self.lambda2 = lambda2
 
 
         self.noise_model = noise_model
@@ -83,7 +84,7 @@ class SMURF():
                     g = element[0]
                     c = element[1]
 
-                    LossFuncCG = LossFunctionConstantVariance(u[g][c], v[g][c], A[g][c], G, H, g, c)
+                    LossFuncCG = LossFunctionConstantVariance(u[g][c], v[g][c], A[g][c], G, H, g, c, self.lambda2)
                     LossFunc = LossFunc + LossFuncCG
             else:
                 LossFunc = (step+1)*(self.eps+1)
@@ -110,7 +111,7 @@ class SMURF():
                     if Vg[g][0] <= 1e-09:
                         Vg[g][0] = 1e-09
 
-                    dG, dH, dVg = CVOptimize(A, G, H, u, Vg, Vc, v, g, c)
+                    dG, dH, dVg = CVOptimize(A, G, H, u, Vg, Vc, v, g, c, self.lambda2)
                     G[g, :] = G[g, :] + self.alpha * dG
                     H[:, c] = H[:, c] + self.alpha * dH
                     Vg[g, :] = Vg[g, :] + self.alpha * dVg
@@ -154,7 +155,7 @@ class SMURF():
                     g = element[0]
                     c = element[1]
 
-                    LossFuncCG = LossFunctionFano(u[g][c], b[g][c], A[g][c], G, H, g, c)
+                    LossFuncCG = LossFunctionFano(u[g][c], b[g][c], A[g][c], G, H, g, c, self.lambda2)
                     LossFunc = LossFunc + LossFuncCG
             else:
                 LossFunc = (step + 1)*self.eps
@@ -181,7 +182,7 @@ class SMURF():
                         bg[g][0] = 1e-09
                     b[g][c] = np.dot(bg[g, :], bc[:, c])
 
-                    dG, dH, dbg = FanoOptimize(A, G, H, u, bg, bc, b, g, c)
+                    dG, dH, dbg = FanoOptimize(A, G, H, u, bg, bc, b, g, c, self.lambda2)
                     G[g, :] = G[g, :] + self.alpha * dG
                     H[:, c] = H[:, c] + self.alpha * dH
                     bg[g, :] = bg[g, :] + self.alpha * dbg
@@ -221,7 +222,7 @@ class SMURF():
                 for element in nonZeroElem:
                     g = element[0]
                     c = element[1]
-                    LossFuncCG = LossFunctionConstantCoefficientVariation(u[g][c], a[g][c], A[g][c], G, H, g, c)
+                    LossFuncCG = LossFunctionConstantCoefficientVariation(u[g][c], a[g][c], A[g][c], G, H, g, c, self.lambda2)
                     LossFunc = LossFunc + LossFuncCG
             else:
                 LossFunc = (step + 1)*self.eps
@@ -249,7 +250,7 @@ class SMURF():
                     if ac[0][c] <= 1e-09:
                         ac[0][c] = 1e-09
 
-                    dG, dH, dag, dac = CCVOptimize(A, G, H, u, ag, ac, a, g, c)
+                    dG, dH, dag, dac = CCVOptimize(A, G, H, u, ag, ac, a, g, c, self.lambda2)
 
                     G[g, :] = G[g, :] + self.alpha * dG
                     H[:, c] = H[:, c] + self.alpha * dH

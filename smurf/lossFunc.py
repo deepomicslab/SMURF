@@ -11,7 +11,7 @@ from numpy import log
 import numpy as np
 
 
-def LossFunctionConstantVariance(u, v, y, G, H, g, c):
+def LossFunctionConstantVariance(u, v, y, G, H, g, c, lambda2):
     u = max(u, 0.01)
     v = max(v, 1e-09)
     fun1 = ((u ** 2) / v) * log(u)
@@ -19,24 +19,24 @@ def LossFunctionConstantVariance(u, v, y, G, H, g, c):
     fun3 = -gammaln(u ** 2 / v)
     fun4 = gammaln(y + u**2 / v)
     fun5 = -(y + u ** 2 / v) * log(1 + u / v)
-    fun6 = - 0.2 * (np.dot(G[g, :], G[g, :].transpose()) + np.dot(H[:, c].transpose(), H[:, c]))
+    fun6 = - lambda2 * (np.dot(G[g, :], G[g, :].transpose()) + np.dot(H[:, c].transpose(), H[:, c]))
     fun = fun1 + fun2 + fun3 + fun4 + fun5 + fun6
     return fun
 
 
-def LossFunctionFano(u, b, y, G, H, g, c):
+def LossFunctionFano(u, b, y, G, H, g, c, lambda2):
     u = max(u, 0.01)
     b = max(b, 1e-09)
     fun1 = - (u/b) * log(b)
     fun2 = -gammaln(u/b)
     fun3 = gammaln(y + (u/b))
     fun4 = -(y + (u/b))*log(1 + (1/b))
-    fun5 = - 0.2 * (np.dot(G[g, :], G[g, :].transpose()) + np.dot(H[:, c].transpose(), H[:, c]))
+    fun5 = - lambda2 * (np.dot(G[g, :], G[g, :].transpose()) + np.dot(H[:, c].transpose(), H[:, c]))
     fun = fun1 + fun2 + fun3 + fun4 + fun5
     return fun
 
 
-def LossFunctionConstantCoefficientVariation(u, a, y, G, H, g, c):
+def LossFunctionConstantCoefficientVariation(u, a, y, G, H, g, c, lambda2):
     u = max(u, 0.01)
     a = max(a, 1e-09)
     fun1 = -(1/a) * log(a)
@@ -44,6 +44,6 @@ def LossFunctionConstantCoefficientVariation(u, a, y, G, H, g, c):
     fun3 = -gammaln(1/a)
     fun4 = gammaln(y + 1/a)
     fun5 = -(y + 1/a) * log(1 + 1/(a * u))
-    fun6 = - 0.2 * (np.dot(G[g, :], G[g, :].transpose()) + np.dot(H[:, c].transpose(), H[:, c]))
+    fun6 = - lambda2 * (np.dot(G[g, :], G[g, :].transpose()) + np.dot(H[:, c].transpose(), H[:, c]))
     fun = fun1 + fun2 + fun3 + fun4 + fun5 + fun6
     return fun
