@@ -7,9 +7,7 @@ Created on Sat May 14 18:42:01 2022
 from clustering import spectral_clustering, hierarchical_clustering,get_metric, get_metric_without_label, kmeans_clustering
 import pandas as pd
 import numpy as np
-from sklearn.decomposition import PCA
-from utiles import dataNormalization
-import umap
+
 
 
 
