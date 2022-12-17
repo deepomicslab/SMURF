@@ -250,7 +250,7 @@ class SMURF():
                     if ac[0][c] <= 1e-09:
                         ac[0][c] = 1e-09
 
-                    dG, dH, dag, dac = CCVOptimize(A, G, H, u, ag, ac, a, g, c, self.lambda2)
+                    dG, dH, dag = CCVOptimize(A, G, H, u, ag, ac, a, g, c, self.lambda2)
 
                     G[g, :] = G[g, :] + self.alpha * dG
                     H[:, c] = H[:, c] + self.alpha * dH
