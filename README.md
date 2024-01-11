@@ -25,6 +25,7 @@ import smurf
 import pandas as pd
 
 # read your data, the rows in the data represent genes, and the columns represent cells
+# demo file https://github.com/deepomicslab/SMURF/blob/master/data.csv
 data = pd.read_csv("data.csv", header=0, index_col=0)
 
 # create a SMURF object which only return the imputed data
